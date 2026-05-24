@@ -3,22 +3,26 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>GoPro Video Hub</title>
+    <title>Video GoPro Locci</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
     <header>
-        <h1>I Miei Video GoPro</h1>
+        <h1>Video GoPro Locci</h1>
         <nav id="filters">
-            <div class="album-group" id="people-albums">
-                </div>
-            <div class="album-group" id="date-albums">
-                </div>
+            <div class="album-group" id="people-albums"></div>
+            <div class="album-group" id="date-albums"></div>
         </nav>
     </header>
 
-    <main id="video-container">
-        </main>
+    <main id="video-container"></main>
+
+    <div id="video-modal" class="modal" onclick="closeModal()">
+        <div class="modal-content" onclick="event.stopPropagation()">
+            <span class="close-btn" onclick="closeModal()">&times;</span>
+            <div id="modal-body"></div>
+        </div>
+    </div>
 
     <script src="script.js"></script>
 </body>
