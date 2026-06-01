@@ -13,38 +13,41 @@ async function loadGallery() {
         
         allVideos.reverse();
 
-        renderAlbums(allVideos);
+        renderPeople(allVideos);
         renderMonthsAndYears(allVideos);
+        renderAlbums(allVideos);
         renderVideos(allVideos);
     } catch (error) {
         console.error("Errore nel caricamento dati:", error);
     }
 }
 
-function renderAlbums(videos) {
-    const peopleContainer = document.getElementById('people-albums');
+function renderPeople(videos) {
+    const container = document.getElementById('people-albums');
     let counts = {};
+
     videos.forEach(v => {
-        counts[v.Album] = (counts[v.Album] || 0) + 1;
+        if (!v.Persone || v.Persone === "/") return;
+        
+        const personeNelVideo = Array.isArray(v.Persone) ? v.Persone : [v.Persone];
+        personeNelVideo.forEach(p => {
+            if (p && p !== "/" && p !== "Fava" && p !== "Itallo" && p !== "Fabio") {
+                counts[p] = (counts[p] || 0) + 1;
+            }
+        });
     });
 
-    let albumsSorted = Object.keys(counts).sort((a, b) => counts[b] - counts[a]);
-    albumsSorted = albumsSorted.filter(a => a !== "Timelapse" && a !== "Altro" && a !== "Video Fabio");
-    
-    if (counts["Timelapse"]) albumsSorted.push("Timelapse");
-    if (counts["Altro"]) albumsSorted.push("Altro");
-    if (counts["Video Fabio"]) albumsSorted.push("Video Fabio");
+    const peopleSorted = Object.keys(counts).sort((a, b) => counts[b] - counts[a]);
 
-    peopleContainer.innerHTML = '<strong>Persone: </strong>' + 
+    container.innerHTML = '<strong>Persone: </strong>' + 
         `<button class="album-btn" onclick="resetFilters()"><strong>Tutti i video</strong> (${allVideos.length})</button>` +
-        albumsSorted.map(a => 
-            `<button class="album-btn" onclick="filterByAlbum('${a}')">${a} (${counts[a]})</button>`
+        peopleSorted.map(p => 
+            `<button class="album-btn" onclick="filterByPerson('${p}')">${p} (${counts[p]})</button>`
         ).join('');
 }
 
 function renderMonthsAndYears(videos) {
     const dateContainer = document.getElementById('date-albums');
-    
     let activePeriods = [];
 
     videos.forEach(v => {
@@ -73,6 +76,38 @@ function renderMonthsAndYears(videos) {
         }).join('');
 }
 
+function renderAlbums(videos) {
+    const container = document.getElementById('collection-albums');
+    let counts = {};
+    videos.forEach(v => {
+        counts[v.Album] = (counts[v.Album] || 0) + 1;
+    });
+
+    let albumsSorted = Object.keys(counts).sort((a, b) => counts[b] - counts[a]);
+    albumsSorted = albumsSorted.filter(a => a !== "Timelapse" && a !== "Altro" && a !== "Video Fabio");
+    
+    if (counts["Timelapse"]) albumsSorted.push("Timelapse");
+    if (counts["Altro"]) albumsSorted.push("Altro");
+    if (counts["Video Fabio"]) albumsSorted.push("Video Fabio");
+
+    container.innerHTML = '<strong>Album: </strong>' + 
+        `<button class="album-btn" onclick="resetFilters()"><strong>Tutti i video</strong> (${allVideos.length})</button>` +
+        albumsSorted.map(a => 
+            `<button class="album-btn" onclick="filterByAlbum('${a}')">${a} (${counts[a]})</button>`
+        ).join('');
+}
+
+window.filterByPerson = (personName) => {
+    const filtered = allVideos.filter(v => {
+        if (!v.Persone) return false;
+        if (Array.isArray(v.Persone)) {
+            return v.Persone.includes(personName);
+        }
+        return v.Persone === personName;
+    });
+    renderVideos(filtered);
+};
+
 window.filterByMonthYear = (monthCode, year) => {
     const filtered = allVideos.filter(v => {
         const [_, m, y] = v.Data.split('/');
@@ -88,13 +123,13 @@ window.filterByMonthYear = (monthCode, year) => {
     renderVideos(filtered);
 };
 
-window.resetFilters = () => {
-    renderVideos(allVideos);
-};
-
 window.filterByAlbum = (albumName) => {
     const filtered = allVideos.filter(v => v.Album === albumName);
     renderVideos(filtered);
+};
+
+window.resetFilters = () => {
+    renderVideos(allVideos);
 };
 
 function getYoutubeId(url) {
