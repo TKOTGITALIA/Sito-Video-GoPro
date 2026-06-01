@@ -647,7 +647,7 @@
     "Link": "https://youtu.be/ErzsmDTPeEg",
     "Data di caricamento": "22/12/2025",
     "Caricamento": "Completato",
-    "Nome originale video": "/"
+    "Nome originale video": "1222(3).mp4"
   },
   {
     "Nome": "Giro in moto Locci 1 22/12/2025",
@@ -823,7 +823,7 @@
     "Link": "https://youtu.be/nIyzVZRff60",
     "Data di caricamento": "26/12/2025",
     "Caricamento": "Completato",
-    "Nome originale video": "/"
+    "Nome originale video": "1226(1).mp4"
   },
   {
     "Nome": "Giro in moto Locci 1 1/4 26/12/2025",
@@ -1725,5 +1725,181 @@
     "Data di caricamento": "05/01/2026",
     "Caricamento": "Completato",
     "Nome originale video": "GP011244.MP4"
+  },
+  {
+    "Nome": "Giro in moto Locci 1 04/01/2026",
+    "Persone": "Locci",
+    "Data": "04/01/2026",
+    "Visuale": "Locci",
+    "Album": "Locci",
+    "Link": "https://youtu.be/PFZGcy8U9Ks",
+    "Data di caricamento": "05/01/2026",
+    "Caricamento": "Completato",
+    "Nome originale video": "GOPR1245.MP4"
+  },
+  {
+    "Nome": "Giro in moto Locci e Gili 1 visuale Locci 1/2 04/01/2026",
+    "Persone": ["Locci","Gili"],
+    "Data": "04/01/2026",
+    "Visuale": "Locci",
+    "Album": "Locci e Gili",
+    "Link": "https://youtu.be/S5ywps17cHI",
+    "Data di caricamento": "05/01/2026",
+    "Caricamento": "Completato",
+    "Nome originale video": "GOPR1246.MP4"
+  },
+  {
+    "Nome": "Giro in moto Locci e Gili 1 visuale Locci 2/2 04/01/2026",
+    "Persone": ["Locci","Gili"],
+    "Data": "04/01/2026",
+    "Visuale": "Locci",
+    "Album": "Locci e Gili",
+    "Link": "https://youtu.be/Cq4chEA4V5Q",
+    "Data di caricamento": "06/01/2026",
+    "Caricamento": "Completato",
+    "Nome originale video": "GP011246.MP4"
+  },
+  {
+    "Nome": "Giro in moto Locci e Gili 2 visuale Locci 04/01/2026",
+    "Persone": ["Locci","Gili"],
+    "Data": "04/01/2026",
+    "Visuale": "Locci",
+    "Album": "Locci e Gili",
+    "Link": "https://youtu.be/8blKuQtU-7c",
+    "Data di caricamento": "06/01/2026",
+    "Caricamento": "Completato",
+    "Nome originale video": "GOPR1247.MP4"
+  },
+  {
+    "Nome": "Giro in moto Locci e Gili 3 visuale Locci 04/01/2026",
+    "Persone": ["Locci","Gili"],
+    "Data": "04/01/2026",
+    "Visuale": "Locci",
+    "Album": "Locci e Gili",
+    "Link": "https://youtu.be/VgAJEC1gtvc",
+    "Data di caricamento": "06/01/2026",
+    "Caricamento": "Completato",
+    "Nome originale video": "1 Giro in moto Locci e Gili 3 04-01-2026.mp4"
+  },
+  {
+    "Nome": "Giro in moto Locci 2 04/01/2026",
+    "Persone": "Locci",
+    "Data": "04/01/2026",
+    "Visuale": "Locci",
+    "Album": "Locci",
+    "Link": "https://youtu.be/YOU-WvMIDAc",
+    "Data di caricamento": "06/01/2026",
+    "Caricamento": "Completato",
+    "Nome originale video": "2 Giro in moto Locci 2 04-01-2026.mp4"
+  },
+  {
+    "Nome": "Giro in moto Locci 1 05/01/2026",
+    "Persone": "Locci",
+    "Data": "05/01/2026",
+    "Visuale": "Locci",
+    "Album": "Locci",
+    "Link": "https://youtu.be/HT9iKAEHzFE",
+    "Data di caricamento": "06/01/2026",
+    "Caricamento": "Completato",
+    "Nome originale video": "3 Giro in moto Locci 1 05-01-2026.mp4"
+  },
+  {
+    "Nome": "Giro in moto Locci 2 05/01/2026",
+    "Persone": "Locci",
+    "Data": "05/01/2026",
+    "Visuale": "Locci",
+    "Album": "Locci",
+    "Link": "https://youtu.be/agle28IWwEg",
+    "Data di caricamento": "06/01/2026",
+    "Caricamento": "Completato",
+    "Nome originale video": "4 Giro in moto Locci 2 05-01-2026.mp4"
+  },
+  {
+    "Nome": "Giro in moto Locci 1 06/01/2026",
+    "Persone": "Locci",
+    "Data": "06/01/2026",
+    "Visuale": "Locci",
+    "Album": "Locci",
+    "Link": "https://youtu.be/LMbUazJrrS8",
+    "Data di caricamento": "06/01/2026",
+    "Caricamento": "Completato",
+    "Nome originale video": "1 Giro in moto Locci 1 06-01-2026.mp4"
+  },
+  {
+    "Nome": "Giro in moto Locci 2 06/01/2026",
+    "Persone": "Locci",
+    "Data": "06/01/2026",
+    "Visuale": "Locci",
+    "Album": "Locci",
+    "Link": "https://youtu.be/48VZECnttAQ",
+    "Data di caricamento": "06/01/2026",
+    "Caricamento": "Completato",
+    "Nome originale video": "2 Giro in moto Locci 2 06-01-2026.mp4"
+  },
+  {
+    "Nome": "Giro in moto Locci 3 06/01/2026",
+    "Persone": "Locci",
+    "Data": "06/01/2026",
+    "Visuale": "Locci",
+    "Album": "Locci",
+    "Link": "https://youtu.be/p5OQBLZA1rs",
+    "Data di caricamento": "07/01/2026",
+    "Caricamento": "Completato",
+    "Nome originale video": "3 Giro in moto Locci 3 06-01-2026.mp4"
+  },
+  {
+    "Nome": "Timelapse Borgofranco Pomeriggio 06/01/2026",
+    "Persone": "/",
+    "Data": "06/01/2026",
+    "Visuale": "/",
+    "Album": "Timelapse",
+    "Link": "https://youtu.be/8h6NGPC4zjs",
+    "Data di caricamento": "07/01/2026",
+    "Caricamento": "Completato",
+    "Nome originale video": "0107(4).mp4"
+  },
+  {
+    "Nome": "Locci e Verlezza 07/01/2026",
+    "Persone": ["Locci","Verlezza"],
+    "Data": "07/01/2026",
+    "Visuale": "Locci",
+    "Album": "Locci e Verlezza",
+    "Link": "https://youtu.be/5hTz-9YG1Rs",
+    "Data di caricamento": "08/01/2026",
+    "Caricamento": "Completato",
+    "Nome originale video": "1 Locci e Verlezza 07-01-2026.mp4"
+  },
+  {
+    "Nome": "Giro in moto Locci e Verlezza 1 07/01/2026",
+    "Persone": ["Locci","Verlezza"],
+    "Data": "07/01/2026",
+    "Visuale": "Locci",
+    "Album": "Locci e Verlezza",
+    "Link": "https://youtu.be/PEahBN1oD9Q",
+    "Data di caricamento": "08/01/2026",
+    "Caricamento": "Completato",
+    "Nome originale video": "2 Giro in moto Locci e Verlezza 1 07-01-2026.mp4"
+  },
+  {
+    "Nome": "Giro in moto Locci e Verlezza 2 07/01/2026",
+    "Persone": ["Locci","Verlezza"],
+    "Data": "07/01/2026",
+    "Visuale": "Locci",
+    "Album": "Locci e Verlezza",
+    "Link": "https://youtu.be/RGvtshxobsw",
+    "Data di caricamento": "08/01/2026",
+    "Caricamento": "Completato",
+    "Nome originale video": "3 Giro in moto Locci e Verlezza 2 07-01-2026.mp4"
+  },
+  {
+    "Nome": "Giro in moto Locci 07/01/2026",
+    "Persone": "Locci",
+    "Data": "07/01/2026",
+    "Visuale": "Locci",
+    "Album": "Locci",
+    "Link": "https://youtu.be/Nky7WJQ3uwI",
+    "Data di caricamento": "08/01/2026",
+    "Caricamento": "Completato",
+    "Nome originale video": "GOPR1259.MP4"
   }
 ]
