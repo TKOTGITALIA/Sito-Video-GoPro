@@ -8,7 +8,7 @@ const monthNames = {
 
 async function loadGallery() {
     try {
-        const response = await fetch('data.json');
+        const response = await fetch('data.json?v=1.1');
         allVideos = await response.json();
         
         allVideos.reverse();
@@ -24,7 +24,7 @@ async function loadGallery() {
 
 function renderPeople(videos) {
     const container = document.getElementById('people-albums');
-    const hiddenPeople = ["Fava", "Itallo", "Gio","Fabio"];
+    const hiddenPeople = ["Fava", "Itallo", "Gio", "Minetto", "Fabio"];
     let counts = {};
     let otherCounts = {};
 
@@ -45,8 +45,9 @@ function renderPeople(videos) {
 
     const peopleSorted = Object.keys(counts).sort((a, b) => counts[b] - counts[a]);
 
-    let html = '<strong>Persone: </strong>' + 
-        `<button class="album-btn" onclick="resetFilters()"><strong>Tutti i video</strong> (${allVideos.length})</button>` +
+    let html = '<div style="margin-bottom: 6px; display: flex; align-items: center; gap: 10px;"><strong>Persone:</strong>' +
+        `<button class="album-btn" onclick="resetFilters()"><strong>Tutti i video</strong> (${allVideos.length})</button></div>` +
+        '<div class="filter-row">' +
         peopleSorted.map(p => 
             `<button class="album-btn" onclick="filterByPerson('${p}')">${p} (${counts[p]})</button>`
         ).join('');
@@ -62,6 +63,7 @@ function renderPeople(videos) {
             `</span>`;
     }
 
+    html += '</div>';
     container.innerHTML = html;
 }
 
@@ -94,13 +96,15 @@ function renderMonthsAndYears(videos) {
         return monthB - monthA;
     });
 
-    dateContainer.innerHTML = '<strong>Periodi: </strong>' + 
-        `<button class="album-btn" onclick="resetFilters()"><strong>Tutti i video</strong> (${allVideos.length})</button>` +
+    dateContainer.innerHTML = '<div style="margin-bottom: 6px; display: flex; align-items: center; gap: 10px;"><strong>Periodi:</strong>' + 
+        `<button class="album-btn" onclick="resetFilters()"><strong>Tutti i video</strong> (${allVideos.length})</button></div>` + 
+        '<div class="filter-row">' +
         activePeriods.map(p => {
             const [m, y] = p.split('/');
             const label = `${monthNames[m]} ${y}`;
             return `<button class="album-btn" onclick="filterByMonthYear('${m}', '${y}')">${label}</button>`;
-        }).join('');
+        }).join('') +
+        '</div>';
 }
 
 function renderAlbums(videos) {
@@ -111,18 +115,29 @@ function renderAlbums(videos) {
     });
 
     let albumsSorted = Object.keys(counts).sort((a, b) => counts[b] - counts[a]);
-    albumsSorted = albumsSorted.filter(a => a !== "Timelapse" && a !== "Carnevale di Ivrea" && a !== "Altro" && a !== "Video Fabio");
     
-    if (counts["Timelapse"]) albumsSorted.push("Timelapse");
-    if (counts["Carnevale di Ivrea"]) albumsSorted.push("Carnevale di Ivrea");
-    if (counts["Altro"]) albumsSorted.push("Altro");
-    if (counts["Video Fabio"]) albumsSorted.push("Video Fabio");
+    // Separa gli album standard da quelli speciali da mettere sotto
+    const specialKeys = ["Timelapse", "Carnevale di Ivrea", "Altro", "Video Fabio"];
+    let mainAlbums = albumsSorted.filter(a => !specialKeys.includes(a));
+    let specialAlbums = specialKeys.filter(a => counts[a]);
 
-    container.innerHTML = '<strong>Album: </strong>' + 
-        `<button class="album-btn" onclick="resetFilters()"><strong>Tutti i video</strong> (${allVideos.length})</button>` +
-        albumsSorted.map(a => 
+    let html = '<div style="margin-bottom: 6px; display: flex; align-items: center; gap: 10px;"><strong>Album:</strong>' + 
+        `<button class="album-btn" onclick="resetFilters()"><strong>Tutti i video</strong> (${allVideos.length})</button></div>` + 
+        '<div class="filter-row">' +
+        mainAlbums.map(a => 
             `<button class="album-btn" onclick="filterByAlbum('${a}')">${a} (${counts[a]})</button>`
-        ).join('');
+        ).join('') +
+        '</div>';
+
+    if (specialAlbums.length > 0) {
+        html += '<div class="filter-row" style="margin-top: 8px;">' +
+            specialAlbums.map(a => 
+                `<button class="album-btn" onclick="filterByAlbum('${a}')">${a} (${counts[a]})</button>`
+            ).join('') +
+            '</div>';
+    }
+
+    container.innerHTML = html;
 }
 
 window.filterByPerson = (personName) => {

@@ -215,3 +215,35 @@ hr {
         display: block;
     }
 }
+#people-albums,
+#date-albums,
+#collection-albums {
+    display: flex !important;
+    flex-direction: column !important; 
+    align-items: flex-start;
+    gap: 8px; 
+    margin-bottom: 16px;
+}
+
+.filter-label {
+    font-weight: bold;
+    font-size: 1rem;
+    color: #ffffff;
+}
+
+.filter-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px 10px; 
+    width: 100%;
+}
+
+.filter-row-secondary {
+    margin-top: 6px;
+}
+.filter-header-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 6px;
+}
