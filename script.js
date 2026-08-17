@@ -8,7 +8,7 @@ const monthNames = {
 
 async function loadGallery() {
     try {
-        const response = await fetch('data.json?v=1.1');
+        const response = await fetch('data.json?v=1.2');
         allVideos = await response.json();
         
         allVideos.reverse();
@@ -16,6 +16,7 @@ async function loadGallery() {
         renderPeople(allVideos);
         renderMonthsAndYears(allVideos);
         renderAlbums(allVideos);
+        renderVisuals(allVideos);
         renderVideos(allVideos);
     } catch (error) {
         console.error("Errore nel caricamento dati:", error);
@@ -50,20 +51,21 @@ function renderPeople(videos) {
         '<div class="filter-row">' +
         peopleSorted.map(p => 
             `<button class="album-btn" onclick="filterByPerson('${p}')">${p} (${counts[p]})</button>`
-        ).join('');
+        ).join('') +
+        '</div>';
 
     const availableHiddenPeople = hiddenPeople.filter(p => otherCounts[p] > 0);
 
     if (availableHiddenPeople.length > 0) {
-        html += ` <button class="album-btn" onclick="toggleOtherPeople()"><strong>Altro ▾</strong></button>` +
+        html += '<div class="filter-row" style="margin-top: 8px;">' +
+            `<button class="album-btn" onclick="toggleOtherPeople()"><strong>Altro ▾</strong></button>` +
             `<span id="other-people-container" style="display: none; margin-left: 4px;">` +
             availableHiddenPeople.map(p => 
                 `<button class="album-btn" onclick="filterByPerson('${p}')">${p} (${otherCounts[p]})</button>`
             ).join('') +
-            `</span>`;
+            `</span></div>`;
     }
 
-    html += '</div>';
     container.innerHTML = html;
 }
 
@@ -104,7 +106,8 @@ function renderMonthsAndYears(videos) {
             const label = `${monthNames[m]} ${y}`;
             return `<button class="album-btn" onclick="filterByMonthYear('${m}', '${y}')">${label}</button>`;
         }).join('') +
-        '</div>';
+        '</div>' +
+        '<div id="days-container" class="filter-row" style="margin-top: 8px; display: none;"></div>'; // Contenitore per i giorni
 }
 
 function renderAlbums(videos) {
@@ -140,6 +143,37 @@ function renderAlbums(videos) {
     container.innerHTML = html;
 }
 
+function renderVisuals(videos) {
+    const container = document.getElementById('visual-albums');
+    if (!container) return;
+
+    let counts = {};
+
+    videos.forEach(v => {
+        if (!v.Visuale || v.Visuale === "/") return;
+        counts[v.Visuale] = (counts[v.Visuale] || 0) + 1;
+    });
+
+    // Ordina per numero di video (decrescente)
+    let visualsSorted = Object.keys(counts).sort((a, b) => counts[b] - counts[a]);
+
+    // Se c'è "Fabio", lo sposta all'ultimo posto
+    if (counts["Fabio"]) {
+        visualsSorted = visualsSorted.filter(v => v !== "Fabio");
+        visualsSorted.push("Fabio");
+    }
+
+    let html = '<div style="margin-bottom: 6px; display: flex; align-items: center; gap: 10px;"><strong>Visuale:</strong>' +
+        `<button class="album-btn" onclick="resetFilters()"><strong>Tutti i video</strong> (${allVideos.length})</button></div>` +
+        '<div class="filter-row">' +
+        visualsSorted.map(v => 
+            `<button class="album-btn" onclick="filterByVisual('${v}')">${v} (${counts[v]})</button>`
+        ).join('') +
+        '</div>';
+
+    container.innerHTML = html;
+}
+
 window.filterByPerson = (personName) => {
     const filtered = allVideos.filter(v => {
         if (!v.Persone) return false;
@@ -164,6 +198,32 @@ window.filterByMonthYear = (monthCode, year) => {
     });
 
     renderVideos(filtered);
+
+    const daysContainer = document.getElementById('days-container');
+    if (daysContainer) {
+        let dayCounts = {};
+
+        filtered.forEach(v => {
+            dayCounts[v.Data] = true;
+        });
+
+        const sortedDates = Object.keys(dayCounts).sort((a, b) => {
+            return parseInt(b.split('/')[0], 10) - parseInt(a.split('/')[0], 10);
+        });
+
+        daysContainer.innerHTML = sortedDates.map(fullDate => {
+            const [day, month] = fullDate.split('/');
+            const label = `${day}/${month}`;
+            return `<button class="album-btn" onclick="filterByExactDate('${fullDate}')">${label}</button>`;
+        }).join('');
+
+        daysContainer.style.display = 'flex';
+    }
+};
+
+window.filterByExactDate = (fullDate) => {
+    const filtered = allVideos.filter(v => v.Data === fullDate);
+    renderVideos(filtered);
 };
 
 window.filterByAlbum = (albumName) => {
@@ -171,8 +231,18 @@ window.filterByAlbum = (albumName) => {
     renderVideos(filtered);
 };
 
+window.filterByVisual = (visualName) => {
+    const filtered = allVideos.filter(v => v.Visuale === visualName);
+    renderVideos(filtered);
+};
+
 window.resetFilters = () => {
     renderVideos(allVideos);
+    const daysContainer = document.getElementById('days-container');
+    if (daysContainer) {
+        daysContainer.style.display = 'none';
+        daysContainer.innerHTML = '';
+    }
 };
 
 function getYoutubeId(url) {
