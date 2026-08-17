@@ -24,27 +24,54 @@ async function loadGallery() {
 
 function renderPeople(videos) {
     const container = document.getElementById('people-albums');
+    const hiddenPeople = ["Fava", "Itallo", "Gio","Fabio"];
     let counts = {};
+    let otherCounts = {};
 
     videos.forEach(v => {
         if (!v.Persone || v.Persone === "/") return;
         
         const personeNelVideo = Array.isArray(v.Persone) ? v.Persone : [v.Persone];
         personeNelVideo.forEach(p => {
-            if (p && p !== "/" && p !== "Fava" && p !== "Itallo" && p !== "Fabio") {
-                counts[p] = (counts[p] || 0) + 1;
+            if (p && p !== "/") {
+                if (hiddenPeople.includes(p)) {
+                    otherCounts[p] = (otherCounts[p] || 0) + 1;
+                } else {
+                    counts[p] = (counts[p] || 0) + 1;
+                }
             }
         });
     });
 
     const peopleSorted = Object.keys(counts).sort((a, b) => counts[b] - counts[a]);
 
-    container.innerHTML = '<strong>Persone: </strong>' + 
+    let html = '<strong>Persone: </strong>' + 
         `<button class="album-btn" onclick="resetFilters()"><strong>Tutti i video</strong> (${allVideos.length})</button>` +
         peopleSorted.map(p => 
             `<button class="album-btn" onclick="filterByPerson('${p}')">${p} (${counts[p]})</button>`
         ).join('');
+
+    const availableHiddenPeople = hiddenPeople.filter(p => otherCounts[p] > 0);
+
+    if (availableHiddenPeople.length > 0) {
+        html += ` <button class="album-btn" onclick="toggleOtherPeople()"><strong>Altro ▾</strong></button>` +
+            `<span id="other-people-container" style="display: none; margin-left: 4px;">` +
+            availableHiddenPeople.map(p => 
+                `<button class="album-btn" onclick="filterByPerson('${p}')">${p} (${otherCounts[p]})</button>`
+            ).join('') +
+            `</span>`;
+    }
+
+    container.innerHTML = html;
 }
+
+window.toggleOtherPeople = () => {
+    const container = document.getElementById('other-people-container');
+    if (container) {
+        const isHidden = container.style.display === 'none';
+        container.style.display = isHidden ? 'inline' : 'none';
+    }
+};
 
 function renderMonthsAndYears(videos) {
     const dateContainer = document.getElementById('date-albums');
@@ -84,9 +111,10 @@ function renderAlbums(videos) {
     });
 
     let albumsSorted = Object.keys(counts).sort((a, b) => counts[b] - counts[a]);
-    albumsSorted = albumsSorted.filter(a => a !== "Timelapse" && a !== "Altro" && a !== "Video Fabio");
+    albumsSorted = albumsSorted.filter(a => a !== "Timelapse" && a !== "Carnevale di Ivrea" && a !== "Altro" && a !== "Video Fabio");
     
     if (counts["Timelapse"]) albumsSorted.push("Timelapse");
+    if (counts["Carnevale di Ivrea"]) albumsSorted.push("Carnevale di Ivrea");
     if (counts["Altro"]) albumsSorted.push("Altro");
     if (counts["Video Fabio"]) albumsSorted.push("Video Fabio");
 
