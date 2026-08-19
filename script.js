@@ -8,7 +8,7 @@ const monthNames = {
 
 async function loadGallery() {
     try {
-        const response = await fetch('data.json?v=1.3');
+        const response = await fetch('data.json?v=1.4');
         allVideos = await response.json();
         
         allVideos.reverse();
@@ -107,7 +107,7 @@ function renderMonthsAndYears(videos) {
             return `<button class="album-btn" onclick="filterByMonthYear('${m}', '${y}')">${label}</button>`;
         }).join('') +
         '</div>' +
-        '<div id="days-container" class="filter-row" style="margin-top: 8px; display: none;"></div>'; // Contenitore per i giorni
+        '<div id="days-container" class="filter-row" style="margin-top: 8px; display: none;"></div>';
 }
 
 function renderAlbums(videos) {
@@ -119,7 +119,6 @@ function renderAlbums(videos) {
 
     let albumsSorted = Object.keys(counts).sort((a, b) => counts[b] - counts[a]);
     
-    // Separa gli album standard da quelli speciali da mettere sotto
     const specialKeys = ["Timelapse", "Carnevale di Ivrea", "Altro", "Video Fabio"];
     let mainAlbums = albumsSorted.filter(a => !specialKeys.includes(a));
     let specialAlbums = specialKeys.filter(a => counts[a]);
@@ -154,10 +153,8 @@ function renderVisuals(videos) {
         counts[v.Visuale] = (counts[v.Visuale] || 0) + 1;
     });
 
-    // Ordina per numero di video (decrescente)
     let visualsSorted = Object.keys(counts).sort((a, b) => counts[b] - counts[a]);
 
-    // Se c'è "Fabio", lo sposta all'ultimo posto
     if (counts["Fabio"]) {
         visualsSorted = visualsSorted.filter(v => v !== "Fabio");
         visualsSorted.push("Fabio");
@@ -182,7 +179,7 @@ window.filterByPerson = (personName) => {
         }
         return v.Persone === personName;
     });
-    renderVideos(filtered);
+    renderVideos(filtered, personName !== "Fabio");
 };
 
 window.filterByMonthYear = (monthCode, year) => {
@@ -197,7 +194,7 @@ window.filterByMonthYear = (monthCode, year) => {
         return dayB - dayA;
     });
 
-    renderVideos(filtered, false);
+    renderVideos(filtered, true);
 
     const daysContainer = document.getElementById('days-container');
     if (daysContainer) {
@@ -223,17 +220,33 @@ window.filterByMonthYear = (monthCode, year) => {
 
 window.filterByExactDate = (fullDate) => {
     const filtered = allVideos.filter(v => v.Data === fullDate);
-    renderVideos(filtered, false);
+    currentVideosList = filtered;
+    const container = document.getElementById('video-container');
+
+    const [dayStr, monthCode, year] = fullDate.split('/');
+    const day = parseInt(dayStr, 10); 
+    const label = `${day} ${monthNames[monthCode]} ${year}`;
+
+    const cardsHtml = filtered.map((v, index) => createVideoCardHtml(v, index)).join('');
+
+    container.innerHTML = `
+        <div class="month-section" style="grid-column: 1 / -1; width: 100%; margin-bottom: 25px;">
+            <h2 class="month-title" style="font-size: 1.3rem; margin: 15px 0; border-bottom: 1px solid rgba(255,255,255,0.2); padding-bottom: 6px;">${label}</h2>
+            <div class="video-grid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 15px;">
+                ${cardsHtml}
+            </div>
+        </div>
+    `;
 };
 
 window.filterByAlbum = (albumName) => {
     const filtered = allVideos.filter(v => v.Album === albumName);
-    renderVideos(filtered);
+    renderVideos(filtered, albumName !== "Video Fabio");
 };
 
 window.filterByVisual = (visualName) => {
     const filtered = allVideos.filter(v => v.Visuale === visualName);
-    renderVideos(filtered);
+    renderVideos(filtered, visualName !== "Fabio");
 };
 
 window.resetFilters = () => {
@@ -264,13 +277,11 @@ function renderVideos(videoList, groupByMonth = true) {
     currentVideosList = videoList;
     const container = document.getElementById('video-container');
 
-    // Vista classica senza suddivisione per mese (usata per i Periodi)
     if (!groupByMonth) {
         container.innerHTML = videoList.map((v, index) => createVideoCardHtml(v, index)).join('');
         return;
     }
 
-    // Raggruppamento dei video per Mese/Anno
     let groups = {};
     let groupKeys = [];
 
@@ -278,7 +289,13 @@ function renderVideos(videoList, groupByMonth = true) {
         const parts = v.Data.split('/');
         if (parts.length < 3) return;
         const [day, month, year] = parts;
-        const key = `${month}/${year}`;
+
+        let key;
+        if (year === "2020" || v.Album === "Video Fabio") {
+            key = "Video Fabio";
+        } else {
+            key = `${month}/${year}`;
+        }
 
         if (!groups[key]) {
             groups[key] = [];
@@ -288,6 +305,9 @@ function renderVideos(videoList, groupByMonth = true) {
     });
 
     groupKeys.sort((a, b) => {
+        if (a === "Video Fabio") return 1;
+        if (b === "Video Fabio") return -1;
+
         const [mA, yA] = a.split('/');
         const [mB, yB] = b.split('/');
         if (yB !== yA) return parseInt(yB, 10) - parseInt(yA, 10);
@@ -295,8 +315,14 @@ function renderVideos(videoList, groupByMonth = true) {
     });
 
     container.innerHTML = groupKeys.map(key => {
-        const [m, y] = key.split('/');
-        const label = `${monthNames[m]} ${y}`;
+        let label;
+        if (key === "Video Fabio") {
+            label = "Video Fabio";
+        } else {
+            const [m, y] = key.split('/');
+            label = `${monthNames[m]} ${y}`;
+        }
+
         const cardsHtml = groups[key].map(item => createVideoCardHtml(item.video, item.originalIndex)).join('');
 
         return `
@@ -334,6 +360,9 @@ window.openModal = (index) => {
     const thumbnailUrl = `https://img.youtube.com/vi/${videoId}/hqdefault.jpg`;
     const personeDisplay = Array.isArray(v.Persone) ? v.Persone.join(', ') : v.Persone;
 
+    const risoluzioneVideo = v.Risoluzione || '1080p (Full HD)';
+    const fotogrammiVideo = v.Fotogrammi || v.fotogrammiVideo || '60 FPS';
+
     modalBody.innerHTML = `
         <img src="${thumbnailUrl}" class="modal-thumbnail-large" alt="${v.Nome}">
         
@@ -342,8 +371,8 @@ window.openModal = (index) => {
         <div class="info-section">
             <h4>Informazioni generali</h4>
             <p><strong>Nome:</strong> ${v.Nome}</p>
-            <p><strong>Persone:</strong> ${personeDisplay}</p>
             <p><strong>Data:</strong> ${v.Data}</p>
+            <p><strong>Persone:</strong> ${personeDisplay}</p>
             <p><strong>Visuale:</strong> ${v.Visuale || '/'}</p>
             <p><strong>Album:</strong> ${v.Album}</p>
         </div>
@@ -352,6 +381,8 @@ window.openModal = (index) => {
             <h4>Altre informazioni</h4>
             <p><strong>Nome originale video:</strong> ${v["Nome originale video"] || '/'}</p>
             <p><strong>Data caricamento:</strong> ${v["Data di caricamento"]}</p>
+            <p><strong>Risoluzione:</strong> ${risoluzioneVideo}</p>
+            <p><strong>Fotogrammi:</strong> ${fotogrammiVideo}</p>
         </div>
     `;
     modal.style.display = "block";
