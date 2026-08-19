@@ -8,7 +8,7 @@ const monthNames = {
 
 async function loadGallery() {
     try {
-        const response = await fetch('data.json?v=1.2');
+        const response = await fetch('data.json?v=1.3');
         allVideos = await response.json();
         
         allVideos.reverse();
@@ -197,7 +197,7 @@ window.filterByMonthYear = (monthCode, year) => {
         return dayB - dayA;
     });
 
-    renderVideos(filtered);
+    renderVideos(filtered, false);
 
     const daysContainer = document.getElementById('days-container');
     if (daysContainer) {
@@ -223,7 +223,7 @@ window.filterByMonthYear = (monthCode, year) => {
 
 window.filterByExactDate = (fullDate) => {
     const filtered = allVideos.filter(v => v.Data === fullDate);
-    renderVideos(filtered);
+    renderVideos(filtered, false);
 };
 
 window.filterByAlbum = (albumName) => {
@@ -260,24 +260,69 @@ function getYoutubeId(url) {
 
 let currentVideosList = [];
 
-function renderVideos(videoList) {
+function renderVideos(videoList, groupByMonth = true) {
     currentVideosList = videoList;
     const container = document.getElementById('video-container');
-    
-    container.innerHTML = videoList.map((v, index) => {
-        const videoId = getYoutubeId(v.Link);
-        const thumbnailUrl = `https://img.youtube.com/vi/${videoId}/hqdefault.jpg`;
+
+    // Vista classica senza suddivisione per mese (usata per i Periodi)
+    if (!groupByMonth) {
+        container.innerHTML = videoList.map((v, index) => createVideoCardHtml(v, index)).join('');
+        return;
+    }
+
+    // Raggruppamento dei video per Mese/Anno
+    let groups = {};
+    let groupKeys = [];
+
+    videoList.forEach((v, index) => {
+        const parts = v.Data.split('/');
+        if (parts.length < 3) return;
+        const [day, month, year] = parts;
+        const key = `${month}/${year}`;
+
+        if (!groups[key]) {
+            groups[key] = [];
+            groupKeys.push(key);
+        }
+        groups[key].push({ video: v, originalIndex: index });
+    });
+
+    groupKeys.sort((a, b) => {
+        const [mA, yA] = a.split('/');
+        const [mB, yB] = b.split('/');
+        if (yB !== yA) return parseInt(yB, 10) - parseInt(yA, 10);
+        return parseInt(mB, 10) - parseInt(mA, 10);
+    });
+
+    container.innerHTML = groupKeys.map(key => {
+        const [m, y] = key.split('/');
+        const label = `${monthNames[m]} ${y}`;
+        const cardsHtml = groups[key].map(item => createVideoCardHtml(item.video, item.originalIndex)).join('');
 
         return `
-        <div class="video-card">
-            <div class="thumbnail-container" onclick="openModal(${index})">
-                <img src="${thumbnailUrl}" alt="Miniatura ${v.Nome}" class="video-thumbnail">
+            <div class="month-section" style="grid-column: 1 / -1; width: 100%; margin-bottom: 25px;">
+                <h2 class="month-title" style="font-size: 1.3rem; margin: 15px 0; border-bottom: 1px solid rgba(255,255,255,0.2); padding-bottom: 6px;">${label}</h2>
+                <div class="video-grid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 15px;">
+                    ${cardsHtml}
+                </div>
             </div>
-            <div class="video-title-main">${v.Nome}</div>
-            <a href="${v.Link}" target="_blank" class="watch-link">Guarda su YouTube</a>
-        </div>
         `;
     }).join('');
+}
+
+function createVideoCardHtml(v, index) {
+    const videoId = getYoutubeId(v.Link);
+    const thumbnailUrl = `https://img.youtube.com/vi/${videoId}/hqdefault.jpg`;
+
+    return `
+    <div class="video-card">
+        <div class="thumbnail-container" onclick="openModal(${index})">
+            <img src="${thumbnailUrl}" alt="Miniatura ${v.Nome}" class="video-thumbnail">
+        </div>
+        <div class="video-title-main">${v.Nome}</div>
+        <a href="${v.Link}" target="_blank" class="watch-link">Guarda su YouTube</a>
+    </div>
+    `;
 }
 
 window.openModal = (index) => {
@@ -307,7 +352,6 @@ window.openModal = (index) => {
             <h4>Altre informazioni</h4>
             <p><strong>Nome originale video:</strong> ${v["Nome originale video"] || '/'}</p>
             <p><strong>Data caricamento:</strong> ${v["Data di caricamento"]}</p>
-            <p><strong>Stato Caricamento:</strong> ${v.Caricamento}</p>
         </div>
     `;
     modal.style.display = "block";
