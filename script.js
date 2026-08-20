@@ -25,7 +25,7 @@ async function loadGallery() {
 
 function renderPeople(videos) {
     const container = document.getElementById('people-albums');
-    const hiddenPeople = ["Fava", "Itallo", "Gio", "Minetto", "Fabio"];
+    const hiddenPeople = ["Fava", "Itallo", "Gio", "Minetto"];
     let counts = {};
     let otherCounts = {};
 
@@ -34,11 +34,13 @@ function renderPeople(videos) {
         
         const personeNelVideo = Array.isArray(v.Persone) ? v.Persone : [v.Persone];
         personeNelVideo.forEach(p => {
-            if (p && p !== "/") {
-                if (hiddenPeople.includes(p)) {
-                    otherCounts[p] = (otherCounts[p] || 0) + 1;
+            const personaPulita = String(p).trim();
+            
+            if (personaPulita && personaPulita !== "/" && personaPulita.toLowerCase() !== "fabio") {
+                if (hiddenPeople.includes(personaPulita)) {
+                    otherCounts[personaPulita] = (otherCounts[personaPulita] || 0) + 1;
                 } else {
-                    counts[p] = (counts[p] || 0) + 1;
+                    counts[personaPulita] = (counts[personaPulita] || 0) + 1;
                 }
             }
         });
@@ -150,15 +152,15 @@ function renderVisuals(videos) {
 
     videos.forEach(v => {
         if (!v.Visuale || v.Visuale === "/") return;
-        counts[v.Visuale] = (counts[v.Visuale] || 0) + 1;
+        
+        const visualePulita = String(v.Visuale).trim();
+        
+        if (visualePulita && visualePulita !== "/" && visualePulita.toLowerCase() !== "fabio") {
+            counts[visualePulita] = (counts[visualePulita] || 0) + 1;
+        }
     });
 
     let visualsSorted = Object.keys(counts).sort((a, b) => counts[b] - counts[a]);
-
-    if (counts["Fabio"]) {
-        visualsSorted = visualsSorted.filter(v => v !== "Fabio");
-        visualsSorted.push("Fabio");
-    }
 
     let html = '<div style="margin-bottom: 6px; display: flex; align-items: center; gap: 10px;"><strong>Visuale:</strong>' +
         `<button class="album-btn" onclick="resetFilters()"><strong>Tutti i video</strong> (${allVideos.length})</button></div>` +
@@ -338,15 +340,18 @@ function renderVideos(videoList, groupByMonth = true) {
 
 function createVideoCardHtml(v, index) {
     const videoId = getYoutubeId(v.Link);
-    const thumbnailUrl = `https://img.youtube.com/vi/${videoId}/hqdefault.jpg`;
+    const thumbnailUrl = `https://img.youtube.com/vi/${videoId}/mqdefault.jpg`;
+    const durataBadge = (v.Durata && v.Durata !== "/") 
+        ? `<span class="duration-badge" style="position: absolute; bottom: 8px; right: 8px; background: rgba(0,0,0,0.8); color: #fff; padding: 2px 6px; border-radius: 4px; font-size: 0.75rem; font-weight: bold;">${v.Durata}</span>` 
+        : '';
 
     return `
     <div class="video-card">
-        <div class="thumbnail-container" onclick="openModal(${index})">
+        <div class="thumbnail-container" onclick="openModal(${index})" style="position: relative;">
             <img src="${thumbnailUrl}" alt="Miniatura ${v.Nome}" class="video-thumbnail">
+            ${durataBadge}
         </div>
         <div class="video-title-main">${v.Nome}</div>
-        <a href="${v.Link}" target="_blank" class="watch-link">Guarda su YouTube</a>
     </div>
     `;
 }
@@ -357,32 +362,63 @@ window.openModal = (index) => {
     const v = currentVideosList[index];
     
     const videoId = getYoutubeId(v.Link);
-    const thumbnailUrl = `https://img.youtube.com/vi/${videoId}/hqdefault.jpg`;
-    const personeDisplay = Array.isArray(v.Persone) ? v.Persone.join(', ') : v.Persone;
+
+    const pulisciTesto = (val) => {
+        if (!val) return '';
+        if (Array.isArray(val)) return val.map(x => String(x).trim()).join(', ');
+        return String(val).trim();
+    };
+
+    const personeTesto = pulisciTesto(v.Persone);
+    const visualeTesto = pulisciTesto(v.Visuale);
+
+    const isPersoneFabio = personeTesto.toLowerCase() === 'fabio';
+    const isVisualeFabio = visualeTesto.toLowerCase() === 'fabio';
+    const nascondiFabio = isPersoneFabio && isVisualeFabio;
+
+    const personeHtml = nascondiFabio ? '' : `<p><strong>Persone:</strong> ${personeTesto || '/'}</p>`;
+    const visualeHtml = nascondiFabio ? '' : `<p><strong>Visuale:</strong> ${visualeTesto || '/'}</p>`;
 
     const risoluzioneVideo = v.Risoluzione || '1080p (Full HD)';
     const fotogrammiVideo = v.Fotogrammi || v.fotogrammiVideo || '60 FPS';
+    const durataVideo = v.Durata || '/';
+
+    const shareBtnHtml = (v.Link && v.Link !== "/")
+        ? `<button class="share-btn" onclick="copiaLink('${v.Link}', this)">Clicca qui per ottenere il link per condividere il video</button>`
+        : '';
 
     modalBody.innerHTML = `
-        <img src="${thumbnailUrl}" class="modal-thumbnail-large" alt="${v.Nome}">
+        <div class="iframe-container">
+            <iframe 
+                class="modal-video-frame"
+                src="https://www.youtube.com/embed/${videoId}" 
+                title="${v.Nome}"
+                frameborder="0" 
+                allow="accelerometer; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
+                allowfullscreen>
+            </iframe>
+        </div>
         
-        <a href="${v.Link}" target="_blank" class="watch-link" style="margin-bottom: 20px;">Guarda su YouTube</a>
+        <a href="${v.Link}" target="_blank" class="share-btn">Clicca qui per guardare direttamente su YouTube</a>
+        
+        ${shareBtnHtml}
         
         <div class="info-section">
             <h4>Informazioni generali</h4>
             <p><strong>Nome:</strong> ${v.Nome}</p>
             <p><strong>Data:</strong> ${v.Data}</p>
-            <p><strong>Persone:</strong> ${personeDisplay}</p>
-            <p><strong>Visuale:</strong> ${v.Visuale || '/'}</p>
+            ${personeHtml}
+            ${visualeHtml}
             <p><strong>Album:</strong> ${v.Album}</p>
         </div>
         <hr>
         <div class="info-section">
             <h4>Altre informazioni</h4>
-            <p><strong>Nome originale video:</strong> ${v["Nome originale video"] || '/'}</p>
-            <p><strong>Data caricamento:</strong> ${v["Data di caricamento"]}</p>
+            <p><strong>Durata:</strong> ${durataVideo}</p>
             <p><strong>Risoluzione:</strong> ${risoluzioneVideo}</p>
             <p><strong>Fotogrammi:</strong> ${fotogrammiVideo}</p>
+            <p><strong>Data caricamento:</strong> ${v["Data di caricamento"]}</p>
+            <p><strong>Nome originale video:</strong> ${v["Nome originale video"] || '/'}</p>
         </div>
     `;
     modal.style.display = "block";
@@ -390,8 +426,25 @@ window.openModal = (index) => {
 };
 
 window.closeModal = () => {
-    document.getElementById('video-modal').style.display = "none";
+    const modal = document.getElementById('video-modal');
+    const modalBody = document.getElementById('modal-body');
+    modal.style.display = "none";
     document.body.style.overflow = "auto";
+    modalBody.innerHTML = "";
+};
+window.copiaLink = (link, element) => {
+    navigator.clipboard.writeText(link).then(() => {
+        const testoOriginale = element.innerText;
+        element.innerText = "Link copiato!";
+        element.style.backgroundColor = "#28a745"; // Sfondo verde temporaneo
+        element.style.borderColor = "#28a745";
+
+        setTimeout(() => {
+            element.innerText = testoOriginale;
+            element.style.backgroundColor = "";
+            element.style.borderColor = "";
+        }, 2000);
+    });
 };
 
 loadGallery();
