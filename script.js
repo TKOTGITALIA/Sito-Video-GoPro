@@ -8,7 +8,7 @@ const monthNames = {
 
 async function loadGallery() {
     try {
-        const response = await fetch('data.json?v=1.4');
+        const response = await fetch('data.json?v=1.5');
         allVideos = await response.json();
         
         allVideos.reverse();
