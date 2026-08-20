@@ -8,7 +8,7 @@ const monthNames = {
 
 async function loadGallery() {
     try {
-        const response = await fetch('data.json?v=1.6');
+        const response = await fetch('data.json?v=1.7');
         allVideos = await response.json();
         
         allVideos.reverse();
@@ -423,6 +423,8 @@ window.openModal = (index) => {
     `;
     modal.style.display = "block";
     document.body.style.overflow = "hidden";
+
+    document.body.classList.add('modal-open');
 };
 
 window.closeModal = () => {
@@ -430,6 +432,7 @@ window.closeModal = () => {
     const modalBody = document.getElementById('modal-body');
     modal.style.display = "none";
     document.body.style.overflow = "auto";
+    document.body.classList.remove('modal-open');
     modalBody.innerHTML = "";
 };
 window.copiaLink = (link, element) => {
