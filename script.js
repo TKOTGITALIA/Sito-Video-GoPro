@@ -8,7 +8,7 @@ const monthNames = {
 
 async function loadGallery() {
     try {
-        const response = await fetch('data.json?v=1.7');
+        const response = await fetch('data.json?v=1.8');
         allVideos = await response.json();
         
         allVideos.reverse();
@@ -383,6 +383,10 @@ window.openModal = (index) => {
     const fotogrammiVideo = v.Fotogrammi || v.fotogrammiVideo || '60 FPS';
     const durataVideo = v.Durata || '/';
 
+    const watchYoutubeBtnHtml = (v.Link && v.Link !== "/")
+        ? `<a href="${v.Link}" target="_blank" class="share-btn">Clicca qui per guardare direttamente su YouTube</a>`
+        : '';
+
     const shareBtnHtml = (v.Link && v.Link !== "/")
         ? `<button class="share-btn" onclick="copiaLink('${v.Link}', this)">Clicca qui per ottenere il link per condividere il video</button>`
         : '';
@@ -399,8 +403,7 @@ window.openModal = (index) => {
             </iframe>
         </div>
         
-        <a href="${v.Link}" target="_blank" class="share-btn">Clicca qui per guardare direttamente su YouTube</a>
-        
+        ${watchYoutubeBtnHtml}
         ${shareBtnHtml}
         
         <div class="info-section">
@@ -422,8 +425,6 @@ window.openModal = (index) => {
         </div>
     `;
     modal.style.display = "block";
-    document.body.style.overflow = "hidden";
-
     document.body.classList.add('modal-open');
 };
 
